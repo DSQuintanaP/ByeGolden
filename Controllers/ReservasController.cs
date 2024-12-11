@@ -17,6 +17,8 @@ namespace ByeGolden.Controllers
 {
     public class ReservasController : Controller
     {
+        ReservaVM reservaVM = new ReservaVM();
+
         private readonly ByeGoldenContext _context;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -39,7 +41,7 @@ namespace ByeGolden.Controllers
 
 
         [HttpGet]
-        public IActionResult Crear()
+        public IActionResult Create()
         {
             ViewBag.PaquetesDisponibles = ObtenerPaquetesDisponibles();
             ViewBag.ServiciosDisponibles = _context.Servicios.Where(s => s.Estado == true && (s.IdServicio != 1 && s.IdServicio != 2 && s.IdServicio != 3))
@@ -49,23 +51,27 @@ namespace ByeGolden.Controllers
 
         }
 
-
         [HttpPost]
-        public IActionResult Crear(Reserva oReserva, string paqueteSeleccionado, string serviciosSeleccionados)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Reserva oReserva, string paqueteSeleccionado, string serviciosSeleccionados)
         {
+            ViewBag.PaquetesDisponibles = await _context.Paquetes
+                .Where(s => s.Estado == true)
+                .ToListAsync();
 
-            ViewBag.PaquetesDisponibles = _context.Paquetes.Where(s => s.Estado == true)
-                    .ToList(); ;
-            ViewBag.ServiciosDisponibles = _context.Servicios.Where(s => s.Estado == true && (s.IdServicio != 1 && s.IdServicio != 2 && s.IdServicio != 3))
-                .ToList();
+            ViewBag.ServiciosDisponibles = await _context.Servicios
+                .Where(s => s.Estado == true && (s.IdServicio != 1 && s.IdServicio != 2 && s.IdServicio != 3))
+                .ToListAsync();
+
             ViewData["Error"] = "True";
 
+            //Paquetes
             if (string.IsNullOrEmpty(paqueteSeleccionado))
             {
                 ModelState.AddModelError("paqueteSeleccionados", "Seleccione un paquete");
                 return View(CargarDatosIniciales());
             }
-
+            //Servicios
             if (string.IsNullOrEmpty(serviciosSeleccionados) || serviciosSeleccionados == "[]")
             {
                 ViewData["ErrorServicio"] = "True";
@@ -76,21 +82,22 @@ namespace ByeGolden.Controllers
             {
                 return View(CargarDatosIniciales());
             }
-
+            //Revisa que el Nro de cliente exista
             if (!Existe(oReserva.NroDocumentoCliente))
             {
                 ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente no existe");
                 return View(CargarDatosIniciales());
             }
 
-            var cliente = _context.Clientes.FirstOrDefault(c => c.NroDocumento == oReserva.NroDocumentoCliente);
-
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.NroDocumento == oReserva.NroDocumentoCliente);
+            //Verifica que el estado del cliente sea true
             if (cliente.Estado == false)
             {
-                ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente esta inhabilitado");
+                ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente está inhabilitado");
                 return View(CargarDatosIniciales());
             }
-
+            //Verifica que el correo del cliente este confirmado (true)
             if (cliente.Confirmado == false)
             {
                 ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente no ha confirmado su correo");
@@ -100,17 +107,21 @@ namespace ByeGolden.Controllers
             if (!ValidarFechas(oReserva))
             {
                 return View(CargarDatosIniciales());
-            }
+            } 
 
             if (oReserva.Descuento == null)
             {
                 oReserva.Descuento = 0;
             }
 
-            _context.Reservas.Add(oReserva);
-            _context.SaveChanges();
+            await _context.Reservas.AddAsync(oReserva);
+            await _context.SaveChangesAsync();
 
+            
+            
             var listaPaqueteSeleccionado = JsonConvert.DeserializeObject<List<dynamic>>(paqueteSeleccionado.ToString());
+
+
 
             if (listaPaqueteSeleccionado != null && listaPaqueteSeleccionado.Any())
             {
@@ -122,13 +133,13 @@ namespace ByeGolden.Controllers
 
                 foreach (var paquete in paquetes)
                 {
-                    var DetalleReservaPaquete = new DetalleReservaPaquete
+                    var detalleReservaPaquete = new DetalleReservaPaquete
                     {
                         IdReserva = oReserva.IdReserva,
                         IdPaquete = paquete.IdPaquete,
                         Costo = paquete.Costo
                     };
-                    _context.DetalleReservaPaquetes.Add(DetalleReservaPaquete);
+                    await _context.DetalleReservaPaquetes.AddAsync(detalleReservaPaquete);
                 }
             }
 
@@ -151,26 +162,146 @@ namespace ByeGolden.Controllers
                         {
                             listaServiciosSeleccionados[i].cantidad = 1;
                         }
-                        var DetalleReservaServicio = new DetalleReservaServicio
+                        var detalleReservaServicio = new DetalleReservaServicio
                         {
                             IdReserva = oReserva.IdReserva,
                             IdServicio = listaServiciosSeleccionados[i].id,
                             Costo = listaServiciosSeleccionados[i].costo,
                             Cantidad = listaServiciosSeleccionados[i].cantidad
                         };
-                        _context.DetalleReservaServicios.Add(DetalleReservaServicio);
+                        await _context.DetalleReservaServicios.AddAsync(detalleReservaServicio);
                     }
                 }
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Reservas");
-
         }
+
+        /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Create(Reserva oReserva, string paqueteSeleccionado, string serviciosSeleccionados)
+        //{
+
+        //    ViewBag.PaquetesDisponibles = _context.Paquetes.Where(s => s.Estado == true)
+        //            .ToList(); ;
+        //    ViewBag.ServiciosDisponibles = _context.Servicios.Where(s => s.Estado == true && (s.IdServicio != 1 && s.IdServicio != 2 && s.IdServicio != 3))
+        //        .ToList();
+        //    ViewData["Error"] = "True";
+
+        //    if (string.IsNullOrEmpty(paqueteSeleccionado))
+        //    {
+        //        ModelState.AddModelError("paqueteSeleccionados", "Seleccione un paquete");
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (string.IsNullOrEmpty(serviciosSeleccionados) || serviciosSeleccionados == "[]")
+        //    {
+        //        ViewData["ErrorServicio"] = "True";
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (!Existe(oReserva.NroDocumentoCliente))
+        //    {
+        //        ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente no existe");
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    var cliente = _context.Clientes.FirstOrDefault(c => c.NroDocumento == oReserva.NroDocumentoCliente);
+
+        //    if (cliente.Estado == false)
+        //    {
+        //        ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente esta inhabilitado");
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (cliente.Confirmado == false)
+        //    {
+        //        ModelState.AddModelError("oReserva.NroDocumentoCliente", "El cliente no ha confirmado su correo");
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (!ValidarFechas(oReserva))
+        //    {
+        //        return View(CargarDatosIniciales());
+        //    }
+
+        //    if (oReserva.Descuento == null)
+        //    {
+        //        oReserva.Descuento = 0;
+        //    }
+
+        //    _context.Reservas.Add(oReserva);
+        //    _context.SaveChanges();
+
+        //    var listaPaqueteSeleccionado = JsonConvert.DeserializeObject<List<dynamic>>(paqueteSeleccionado.ToString());
+
+        //    if (listaPaqueteSeleccionado != null && listaPaqueteSeleccionado.Any())
+        //    {
+        //        var paquetes = listaPaqueteSeleccionado.Select(paquete => new Paquete
+        //        {
+        //            IdPaquete = Convert.ToInt32(paquete.id),
+        //            Costo = Convert.ToDouble(paquete.costo)
+        //        }).ToList();
+
+        //        foreach (var paquete in paquetes)
+        //        {
+        //            var DetalleReservaPaquete = new DetalleReservaPaquete
+        //            {
+        //                IdReserva = oReserva.IdReserva,
+        //                IdPaquete = paquete.IdPaquete,
+        //                Costo = paquete.Costo
+        //            };
+        //             _context.DetalleReservaPaquetes.Add(DetalleReservaPaquete);
+        //        }
+        //    }
+
+        //    if (!string.IsNullOrEmpty(serviciosSeleccionados))
+        //    {
+        //        var listaServiciosSeleccionados = JsonConvert.DeserializeObject<List<dynamic>>(serviciosSeleccionados.ToString());
+
+        //        if (listaServiciosSeleccionados != null && listaServiciosSeleccionados.Any())
+        //        {
+        //            var servicios = listaServiciosSeleccionados.Select(servicio => new Servicio
+        //            {
+        //                IdServicio = Convert.ToInt32(servicio.id),
+        //                NomServicio = servicio.nombre.ToString(),
+        //                Costo = Convert.ToDouble(servicio.costo)
+        //            }).ToList();
+
+        //            for (int i = 0; i < listaServiciosSeleccionados.Count; i++)
+        //            {
+        //                if (listaServiciosSeleccionados[i].cantidad == null)
+        //                {
+        //                    listaServiciosSeleccionados[i].cantidad = 1;
+        //                }
+        //                var DetalleReservaServicio = new DetalleReservaServicio
+        //                {
+        //                    IdReserva = oReserva.IdReserva,
+        //                    IdServicio = listaServiciosSeleccionados[i].id,
+        //                    Costo = listaServiciosSeleccionados[i].costo,
+        //                    Cantidad = listaServiciosSeleccionados[i].cantidad
+        //                };
+        //                 _context.DetalleReservaServicios.Add(DetalleReservaServicio);
+        //            }
+        //        }
+        //    }
+
+        //    _context.SaveChanges();
+        //    return RedirectToAction("Index", "Reservas");
+
+        //}
 
 
         [HttpGet]
-        public IActionResult Editar(int ReservaId)
+        public IActionResult Edit(int ReservaId)
         {
             ViewBag.PaqueteAsociado = ObtenerPaqueteAsociado(ReservaId);
 
@@ -197,7 +328,7 @@ namespace ByeGolden.Controllers
 
 
         [HttpPost]
-        public IActionResult Editar(Reserva oReserva, string paqueteSeleccionado, string serviciosSeleccionados)
+        public IActionResult Edit(Reserva oReserva, string paqueteSeleccionado, string serviciosSeleccionados)
         {
             ViewBag.PaqueteAsociado = ObtenerPaqueteAsociado(oReserva.IdReserva);
 
@@ -292,7 +423,7 @@ namespace ByeGolden.Controllers
         }
 
 
-        public IActionResult Detalles(int ReservaId)
+        public IActionResult Details(int ReservaId)
         {
             ViewBag.PaqueteAsociado = ObtenerPaqueteAsociado(ReservaId);
 

@@ -10,6 +10,106 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Cliente -->
+            <div class="form-group">
+                <label asp-for="NroDocumentoCliente" class="control-label"></label>
+                <select asp-for="NroDocumentoCliente" class="form-control" asp-items="ViewBag.NroDocumentoCliente"></select>
+                <span asp-validation-for="NroDocumentoCliente" class="text-danger"></span>
+            </div>
+
+            <!-- Usuario -->
+            <div class="form-group">
+                <label asp-for="NroDocumentoUsuario" class="control-label"></label>
+                <select asp-for="NroDocumentoUsuario" class="form-control" asp-items="ViewBag.NroDocumentoUsuario"></select>
+                <span asp-validation-for="NroDocumentoUsuario" class="text-danger"></span>
+            </div>
+
+            <!-- Fecha Reserva -->
+            <div class="form-group">
+                <label asp-for="FechaReserva" class="control-label"></label>
+                <input asp-for="FechaReserva" class="form-control" />
+                <span asp-validation-for="FechaReserva" class="text-danger"></span>
+            </div>
+
+            <!-- Selección de Paquetes -->
+            <div class="form-group">
+                <label>Paquetes Disponibles</label>
+                <select id="paqueteSeleccionado" class="form-control" multiple>
+                    @foreach (var paquete in ViewBag.PaquetesDisponibles)
+                    {
+                        <option value="@paquete.IdPaquete">@paquete.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Selección de Servicios -->
+            <div class="form-group">
+                <label>Servicios Disponibles</label>
+                <select id="serviciosSeleccionados" class="form-control" multiple>
+                    @foreach (var servicio in ViewBag.ServiciosDisponibles)
+                    {
+                        <option value="@servicio.IdServicio">@servicio.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Campos ocultos -->
+            <input type="hidden" id="hiddenPaqueteSeleccionado" name="paqueteSeleccionado" />
+            <input type="hidden" id="hiddenServiciosSeleccionados" name="serviciosSeleccionados" />
+
+            <!-- Botón para enviar -->
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Captura las selecciones de paquetes y servicios antes de enviar el formulario
+        document.querySelector('form').addEventListener('submit', function () {
+            const paqueteSeleccionado = Array.from(document.getElementById('paqueteSeleccionado').selectedOptions)
+                .map(option => ({ id: option.value, nombre: option.text }));
+
+            const serviciosSeleccionados = Array.from(document.getElementById('serviciosSeleccionados').selectedOptions)
+                .map(option => ({ id: option.value, nombre: option.text }));
+
+            document.getElementById('hiddenPaqueteSeleccionado').value = JSON.stringify(paqueteSeleccionado);
+            document.getElementById('hiddenServiciosSeleccionados').value = JSON.stringify(serviciosSeleccionados);
+        });
+    </script>
+}
+
+
+
+
+
+
+
+@* @model ByeGolden.Models.Reserva
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Reserva</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -82,3 +182,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+ *@

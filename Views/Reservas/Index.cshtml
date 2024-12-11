@@ -8,7 +8,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-controller="Reservas" asp-action="Create">Create New</a>
 </p>
 <table class="table table-striped" id="MyTable">
     <thead>
@@ -49,7 +49,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.NroDocumentoUsuarioNavigation.Nombres)
             </th>
-            <th></th>
+            <th>
+                Acciones
+            </th>
         </tr>
     </thead>
     <tbody>
