@@ -60,7 +60,7 @@ namespace ByeGolden.Controllers
                 .ToListAsync();
 
             ViewBag.ServiciosDisponibles = await _context.Servicios
-                .Where(s => s.Estado == true && (s.IdServicio != 1 && s.IdServicio != 2 && s.IdServicio != 3))
+                .Where(s => s.Estado == true )
                 .ToListAsync();
 
             ViewData["Error"] = "True";
