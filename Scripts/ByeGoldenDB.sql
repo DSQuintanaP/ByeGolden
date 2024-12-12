@@ -11,6 +11,10 @@ CREATE DATABASE ByeGolden;
 
 GO
 
+USE ByeGolden
+
+GO
+
 CREATE TABLE [EstadosReserva] (
     [IdEstadoReserva] int NOT NULL IDENTITY,
     [NombreEstadoReserva] varchar(15) NULL,
