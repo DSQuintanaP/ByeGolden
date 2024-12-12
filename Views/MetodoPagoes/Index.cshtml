@@ -7,27 +7,35 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
+<table class="table table-striped" id="MyTable">
+    <thead class="table-dark">
         <tr>
+            <th>
+                @Html.DisplayNameFor(m=>m.IdMetodoPago)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.NomMetodoPago)
             </th>
-            <th></th>
+            <th>
+                Acciones
+            </th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.IdMetodoPago)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.NomMetodoPago)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IdMetodoPago">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdMetodoPago">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdMetodoPago">Delete</a>
+                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.IdMetodoPago">Editar</a> |
+                <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.IdMetodoPago">Detalles</a> |
+                <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.IdMetodoPago">Eliminar</a>
             </td>
         </tr>
 }
