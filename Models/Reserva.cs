@@ -11,7 +11,7 @@ public partial class Reserva
 
     public int? NroDocumentoUsuario { get; set; }
 
-    public DateOnly FechaReserva { get; set; }
+    public DateTime FechaReserva { get; set; } = DateTime.Now;
 
     public DateOnly FechaInicio { get; set; }
 

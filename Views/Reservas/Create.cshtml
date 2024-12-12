@@ -1,4 +1,4 @@
-﻿@model ByeGolden.Models.Reserva
+﻿@model ByeGolden.Models.ViewModel.ReservaVM
 
 @{
     ViewData["Title"] = "Create";
@@ -15,23 +15,23 @@
 
             <!-- Cliente -->
             <div class="form-group">
-                <label asp-for="NroDocumentoCliente" class="control-label"></label>
-                <select asp-for="NroDocumentoCliente" class="form-control" asp-items="ViewBag.NroDocumentoCliente"></select>
-                <span asp-validation-for="NroDocumentoCliente" class="text-danger"></span>
+                <label asp-for="vmReserva.NroDocumentoCliente" class="control-label"></label>
+                <select asp-for="vmReserva.NroDocumentoCliente" class="form-control" asp-items="ViewBag.NroDocumentoCliente"></select>
+                <span asp-validation-for="vmReserva.NroDocumentoCliente" class="text-danger"></span>
             </div>
 
             <!-- Usuario -->
             <div class="form-group">
-                <label asp-for="NroDocumentoUsuario" class="control-label"></label>
-                <select asp-for="NroDocumentoUsuario" class="form-control" asp-items="ViewBag.NroDocumentoUsuario"></select>
-                <span asp-validation-for="NroDocumentoUsuario" class="text-danger"></span>
+                <label asp-for="vmReserva.NroDocumentoUsuario" class="control-label"></label>
+                <select asp-for="vmReserva.NroDocumentoUsuario" class="form-control" asp-items="ViewBag.NroDocumentoUsuario"></select>
+                <span asp-validation-for="vmReserva.NroDocumentoUsuario" class="text-danger"></span>
             </div>
 
             <!-- Fecha Reserva -->
             <div class="form-group">
-                <label asp-for="FechaReserva" class="control-label"></label>
-                <input asp-for="FechaReserva" class="form-control" />
-                <span asp-validation-for="FechaReserva" class="text-danger"></span>
+                <label asp-for="vmReserva.FechaReserva" class="control-label"></label>
+                <input asp-for="vmReserva.FechaReserva" class="form-control" />
+                <span asp-validation-for="vmReserva.FechaReserva" class="text-danger"></span>
             </div>
 
             <!-- Selección de Paquetes -->
@@ -40,7 +40,7 @@
                 <select id="paqueteSeleccionado" class="form-control" multiple>
                     @foreach (var paquete in ViewBag.PaquetesDisponibles)
                     {
-                        <option value="@paquete.IdPaquete">@paquete.Nombre</option>
+                        <option value="@paquete.IdPaquete">@paquete.NomPaquete</option>
                     }
                 </select>
             </div>
@@ -51,7 +51,7 @@
                 <select id="serviciosSeleccionados" class="form-control" multiple>
                     @foreach (var servicio in ViewBag.ServiciosDisponibles)
                     {
-                        <option value="@servicio.IdServicio">@servicio.Nombre</option>
+                        <option value="@servicio.IdServicio">@servicio.NomServicio</option>
                     }
                 </select>
             </div>

@@ -149,7 +149,7 @@ CREATE TABLE [Reservas] (
     [IdReserva] int NOT NULL IDENTITY,
     [NroDocumentoCliente] varchar(50) NOT NULL,
     [NroDocumentoUsuario] int NULL,
-    [FechaReserva] date NOT NULL,
+    [FechaReserva] date NOT NULL default getdate(),
     [FechaInicio] date NOT NULL,
     [FechaFinalizacion] date NOT NULL,
     [SubTotal] float NULL,

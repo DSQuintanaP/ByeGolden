@@ -364,6 +364,10 @@ public partial class ByeGoldenContext : DbContext
 
             entity.HasIndex(e => e.NroDocumentoUsuario, "IX_Reservas_NroDocumentoUsuario");
 
+            entity.Property(e => e.FechaReserva)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
             entity.Property(e => e.Iva).HasColumnName("IVA");
             entity.Property(e => e.NroDocumentoCliente)
                 .HasMaxLength(50)

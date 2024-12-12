@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using ByeGolden.Models;
 
 namespace ByeGolden.Models.ViewModel
 {
