@@ -7,7 +7,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -73,9 +73,9 @@
                 @Html.DisplayFor(modelItem => item.IdReservaNavigation.IdReserva)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IdAbono">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdAbono">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdAbono">Delete</a>
+                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.IdAbono">Edit</a> |
+                <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.IdAbono">Details</a> |
+                <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.IdAbono">Delete</a>
             </td>
         </tr>
 }
