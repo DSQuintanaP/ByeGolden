@@ -369,6 +369,7 @@ public partial class ByeGoldenContext : DbContext
                 .HasColumnType("datetime");
 
             entity.Property(e => e.Iva).HasColumnName("IVA");
+
             entity.Property(e => e.NroDocumentoCliente)
                 .HasMaxLength(50)
                 .IsUnicode(false);
